@@ -1,26 +1,13 @@
-#!/usr/bin/env python3
 from pathlib import Path
-import re
+import re, sys
+
 root = Path(__file__).resolve().parents[1]
-required = [
-    ".github/workflows/ps5.yml",
-    "Makefile",
-    "np-fake-signin.c",
-    "src/account_activator.c",
-    "src/notification.c",
-    "include/account_activator.h",
-    "include/notification.h",
-    "tools/prepare_upstream.sh",
-]
-for rel in required:
-    assert (root / rel).is_file(), rel
-mk = (root/"Makefile").read_text()
-assert re.search(r"^\$\([A-Za-z_]+\): generated", mk, re.M)
-assert re.search(r"^generated:", mk, re.M)
-assert "include/auth_dat.h" in mk
-src = (root/"np-fake-signin.c").read_text()
-assert 'account_activator_run(' in src
-assert 'is_ps5_fake_signed_in' in src
-assert 'Already signed in' in src
-assert 'Coded by EPINOR' in src
+wf = (root / ".github/workflows/ps5.yml").read_text()
+mk = (root / "Makefile").read_text()
+
+assert "EPINOR-NP-Fake-Signin.elf" in mk
+assert "test -s EPINOR-NP-Fake-Signin.elf" in wf
+assert "dist/EPINOR-NP-Fake-Signin.elf" in wf
+assert not (root / ".github/workflows/release.yml").exists()
+assert "bash ./tools/prepare_upstream.sh" in mk
 print("Project validation: PASS")

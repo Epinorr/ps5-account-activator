@@ -12,6 +12,3 @@ GitHub Actions:
 - publishes a GitHub Release when a `vX.Y.Z` tag is pushed
 
 The binary `.dat` template files are not fabricated in this repository. They are retrieved from the upstream project at build time so the combined project uses the original template data.
-
-Build robustness fix:
-- `prepare_upstream.sh` is invoked through `bash` so the build does not depend on the executable permission bit preserved by GitHub's web upload.
