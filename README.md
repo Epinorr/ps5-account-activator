@@ -31,29 +31,6 @@ Account already active + already signed in
     -> Skip fake sign in
 ```
 
-## Notifications
-
-Successful sign-in:
-
-```text
-NP Fake Signin
-
-Signed in successfully
-Reboot recommended to apply changes.
-
-Coded by EPINOR
-```
-
-Already signed in:
-
-```text
-NP Fake Signin
-
-Already signed in
-
-Coded by EPINOR
-```
-
 Activation failures are also reported through a system notification.
 
 ## Download
