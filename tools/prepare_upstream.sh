@@ -3,23 +3,26 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VENDOR="${ROOT}/.vendor/np-fake-signin"
+UPSTREAM_URL="https://github.com/earthonion/np-fake-signin.git"
 
-if [ ! -d "${VENDOR}/template" ]; then
-  rm -rf "${ROOT}/.vendor"
-  mkdir -p "${ROOT}/.vendor"
-  git clone --depth 1 --branch 1.1 https://github.com/earthonion/np-fake-signin.git "${VENDOR}"
+mkdir -p "${ROOT}/.vendor" "${ROOT}/output" "${ROOT}/include/generated"
+
+if [ ! -d "${VENDOR}/.git" ]; then
+  rm -rf "${VENDOR}"
+  git clone --depth 1 --branch 1.1 "${UPSTREAM_URL}" "${VENDOR}"
 fi
 
-mkdir -p "${ROOT}/include/generated"
+for f in auth.dat config.dat; do
+  test -f "${VENDOR}/template/${f}"
+done
 
-# The upstream make flow produces these headers from its template dat files.
+# Reuse the upstream project's own patching/generation logic.
 python3 "${VENDOR}/gen_dat/patch_dat_files.py" patch \
   "${VENDOR}/template" "${ROOT}/output" "${NP_USER:-User1}"
 
 xxd -i "${ROOT}/output/auth.dat" > "${ROOT}/include/generated/auth_dat.h"
 xxd -i "${ROOT}/output/config.dat" > "${ROOT}/include/generated/config_dat.h"
 
-# Normalize symbol names used by the original C source.
 sed -i \
   -e 's/unsigned char output_auth_dat\[\]/unsigned char auth_dat[]/' \
   -e 's/unsigned int output_auth_dat_len/unsigned int auth_dat_len/' \
@@ -32,3 +35,6 @@ sed -i \
 
 cp "${ROOT}/include/generated/auth_dat.h" "${ROOT}/include/auth_dat.h"
 cp "${ROOT}/include/generated/config_dat.h" "${ROOT}/include/config_dat.h"
+
+test -s "${ROOT}/include/auth_dat.h"
+test -s "${ROOT}/include/config_dat.h"
