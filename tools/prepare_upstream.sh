@@ -20,8 +20,9 @@ done
 python3 "${VENDOR}/gen_dat/patch_dat_files.py" patch \
   "${VENDOR}/template" "${ROOT}/output" "${NP_USER:-User1}"
 
-xxd -i "${ROOT}/output/auth.dat" > "${ROOT}/include/generated/auth_dat.h"
-xxd -i "${ROOT}/output/config.dat" > "${ROOT}/include/generated/config_dat.h"
+cd "${ROOT}/output"
+xxd -i auth.dat > "${ROOT}/include/generated/auth_dat.h"
+xxd -i config.dat > "${ROOT}/include/generated/config_dat.h"
 
 sed -i \
   -e 's/unsigned char output_auth_dat\[\]/unsigned char auth_dat[]/' \
