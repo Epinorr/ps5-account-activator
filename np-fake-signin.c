@@ -21,7 +21,9 @@
 #include "include/token_dat.h"
 #endif
 #include "include/config_dat.h"
+#ifndef PS5
 #include "hmac_md5.h"
+#endif
 #include "include/account_activator.h"
 
 
