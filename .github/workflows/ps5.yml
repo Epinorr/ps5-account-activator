@@ -1,8 +1,9 @@
-name: PS5 Account Activator
+name: EPINOR Combined PS5
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     tags:
       - 'v*.*.*'
   pull_request:
@@ -12,9 +13,13 @@ jobs:
   build:
     name: Build ELF
     runs-on: ubuntu-24.04
+
     steps:
-      - name: Checkout SDK v0.42
-        uses: actions/checkout@v5
+      - name: Checkout payload
+        uses: actions/checkout@v4
+
+      - name: Checkout PS5 Payload SDK v0.42
+        uses: actions/checkout@v4
         with:
           repository: ps5-payload-dev/sdk
           ref: v0.42
@@ -22,45 +27,55 @@ jobs:
 
       - name: Install SDK host dependencies
         run: |
+          set -euxo pipefail
           sudo apt-get update
-          sudo apt-get install -y clang-18 lld-18
+          sudo apt-get install -y \
+            clang-18 \
+            lld-18 \
+            python3 \
+            xxd
 
       - name: Install PS5 Payload SDK
         working-directory: sdk
         run: |
           set -euxo pipefail
+
           make DESTDIR="${{ runner.temp }}/ps5-payload-sdk" clean install
+
           test -f "${{ runner.temp }}/ps5-payload-sdk/toolchain/prospero.mk"
           test -x "${{ runner.temp }}/ps5-payload-sdk/bin/prospero-clang"
           test -x "${{ runner.temp }}/ps5-payload-sdk/bin/prospero-strip"
-
-      - name: Checkout payload
-        uses: actions/checkout@v5
 
       - name: Build payload
         env:
           PS5_PAYLOAD_SDK: ${{ runner.temp }}/ps5-payload-sdk
         run: |
           set -euxo pipefail
-          make clean all
+
+          make clean
+          make all
 
       - name: Verify ELF
         run: |
           set -euxo pipefail
-          test -s EPINOR-Account-Activator.elf
-          file EPINOR-Account-Activator.elf
-          readelf -h EPINOR-Account-Activator.elf
+
+          test -s EPINOR-NP-Fake-Signin.elf
+          file EPINOR-NP-Fake-Signin.elf
+          readelf -h EPINOR-NP-Fake-Signin.elf
 
       - name: Generate checksum
-        run: sha256sum EPINOR-Account-Activator.elf > SHA256SUMS.txt
+        run: |
+          set -euxo pipefail
+
+          sha256sum EPINOR-NP-Fake-Signin.elf > SHA256SUMS.txt
 
       - name: Upload payload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EPINOR-Account-Activator
+          name: EPINOR-NP-Fake-Signin
           if-no-files-found: error
           path: |
-            EPINOR-Account-Activator.elf
+            EPINOR-NP-Fake-Signin.elf
             SHA256SUMS.txt
 
   release:
@@ -70,12 +85,20 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-24.04
+
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
-          name: EPINOR-Account-Activator
+          name: EPINOR-NP-Fake-Signin
           path: dist
+
+      - name: Verify release files
+        run: |
+          set -euxo pipefail
+
+          test -s dist/EPINOR-NP-Fake-Signin.elf
+          test -s dist/SHA256SUMS.txt
 
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -84,5 +107,5 @@ jobs:
           generate_release_notes: true
           prerelease: false
           files: |
-            dist/EPINOR-Account-Activator.elf
+            dist/EPINOR-NP-Fake-Signin.elf
             dist/SHA256SUMS.txt
