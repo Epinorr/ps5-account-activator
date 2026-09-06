@@ -26,7 +26,7 @@ all: $(ELF)
 # This is a single phony prerequisite so `make clean all` cannot try to compile
 # before the generated headers exist.
 generated:
-	bash bash ./tools/prepare_upstream.sh
+	bash ./tools/prepare_upstream.sh
 
 $(ELF): generated $(SRCS) include/auth_dat.h include/config_dat.h \
         include/account_activator.h include/notification.h hmac_md5.h
