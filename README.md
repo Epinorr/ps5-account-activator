@@ -1,6 +1,3 @@
-# EPINOR Combined PS5 NP Fake Signin
-
-Version: `2.0.0`
 
 A standalone PS5 payload that combines **offline account activation** with **NP Fake Signin** in a single execution.
 
