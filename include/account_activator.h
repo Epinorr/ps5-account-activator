@@ -32,4 +32,5 @@ enum account_activator_error {
 };
 
 /* Returns 0 on success; changed is 1 only if registry values were written. */
-int account_activator_run(char username[USERNAME_MAX], int *changed, int *error_code);
+int account_activator_run(char username[USERNAME_MAX], int *changed, int *error_code,
+                          int *account_number, uint64_t *account_id);

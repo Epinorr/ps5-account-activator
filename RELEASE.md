@@ -1,40 +1,11 @@
-# Release procedure
+# Release checklist
 
-1. Upload the contents of this directory to the **root** of your GitHub repository (not inside another folder).
-2. Make sure the workflow path is exactly `.github/workflows/ps5.yml` and that this file is on the default branch.
-3. Commit and push to `main`.
-4. Open **Actions → PS5 Account Activator → Build ELF** and run it manually, or wait for the push-triggered build.
-5. Download the `EPINOR-Account-Activator` artifact and test the ELF on your target PS5 payload loader.
-6. After the device test succeeds, create and push a tag:
-
-```sh
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-The same workflow will create the GitHub Release and attach:
-
-- `EPINOR-Account-Activator.elf`
-- `SHA256SUMS.txt`
-
-Expected success notification:
-
-```text
-Account Activator
-
-Account activated successfully
-User: <current user>
-
-Coded by EPINOR
-```
-
-Expected already-active notification:
-
-```text
-Account Activator
-
-Account is already activated
-User: <current user>
-
-Coded by EPINOR
-```
+1. Push the repository to GitHub with `.github/workflows/ps5.yml` at the repository root.
+2. Run **Build Combined PS5 Payload** from Actions.
+3. Download the generated `EPINOR-NP-Fake-Signin.elf` artifact.
+4. Test the three expected states on a PS5:
+   - inactive account + signed out
+   - active account + signed out
+   - active account + already signed in
+5. After successful device testing, push a tag such as `v1.0.0`.
+6. The same workflow will publish the ELF and SHA256 checksum to the GitHub Release.

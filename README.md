@@ -1,60 +1,92 @@
-# PS5 Account Activator
+# EPINOR Combined PS5 NP Fake Signin
 
-A lightweight, standalone PS5 payload for activating the currently selected user account.
+Version: `2.0.0`
 
-**Simple. Fast. One purpose.**
+A standalone PS5 payload that combines **offline account activation** with **NP Fake Signin** in a single execution.
 
----
+## Behavior
 
-## What is this?
+The payload follows this order:
 
-**PS5 Account Activator** is a standalone payload designed for jailbroken PS5 consoles.
+1. Detect the current foreground user.
+2. Check the account activation state.
+3. Activate the account only when its Account ID is zero.
+4. Check whether the current user is already in the signed-in state.
+5. Skip NP Fake Signin completely when the user is already signed in.
+6. Otherwise perform the original NP Fake Signin flow.
 
-It takes the account activation functionality and turns it into a simple, focused tool:
+This makes the payload idempotent for the two relevant states:
 
-> **Run the payload → activate the current account → receive a confirmation notification.**
+```text
+Account inactive + signed out
+    -> Activate account
+    -> Fake sign in
 
-There are no menus, no configuration, and no Remote Play setup required.
+Account already active + signed out
+    -> Skip activation
+    -> Fake sign in
 
----
+Account already active + already signed in
+    -> Skip activation
+    -> Skip fake sign in
+```
 
-## Features
+## Notifications
 
-- Automatically detects the currently selected PS5 user
-- Activates the selected account when necessary
-- Detects already-activated accounts
-- Displays a system notification with the result
-- Standalone `.elf` payload
-- Lightweight and focused on a single task
-- Does not require Remote Play pairing
----
+Successful sign-in:
+
+```text
+NP Fake Signin
+
+Signed in successfully
+Reboot recommended to apply changes.
+
+Coded by EPINOR
+```
+
+Already signed in:
+
+```text
+NP Fake Signin
+
+Already signed in
+
+Coded by EPINOR
+```
+
+Activation failures are also reported through a system notification.
+
+## Download
+
+Ready-to-use ELF builds are published in GitHub Releases.
+
+[Latest Release](../../releases/latest)
 
 ## Requirements
 
-- A jailbroken PS5
-- A compatible PS5 firmware
-- A payload sender capable of loading `.elf` payloads
+- Jailbroken / exploited PS5
+- A payload loader capable of executing PS5 ELF payloads
 
-No additional hardware, USB device, or Remote Play pairing is required by the payload itself.
+## Credits
 
----
+The NP Fake Signin implementation is based on the `earthonion/np-fake-signin` project.
 
-## Usage
+The account activation component is based on the tested EPINOR account activator implementation derived from etaHEN / PS5Dev OffAct.
 
-### 1. Download
+- [earthonion/np-fake-signin](https://github.com/earthonion/np-fake-signin)
+- [ps5-payload-dev/sdk](https://github.com/ps5-payload-dev/sdk)
+- [etaHEN](https://github.com/etaHEN/etaHEN)
 
-Download the latest:
+## License
 
-`Account-Activator.elf`
+See [LICENSE](LICENSE).
 
-from the [Latest Release](../../releases/latest).
+## Developer build
 
-### 2. Send the payload
+GitHub Actions fetches the PS5 Payload SDK and the upstream NP Fake Signin template data automatically.
 
-Send the `.elf` payload to your PS5 using your preferred payload sender.
-
-### 3. Done
-
-The payload automatically detects the currently selected user and performs the required activation.
-
-A notification will appear showing the result.
+```bash
+export PS5_PAYLOAD_SDK=/path/to/ps5-payload-sdk
+./tools/prepare_upstream.sh
+make
+```

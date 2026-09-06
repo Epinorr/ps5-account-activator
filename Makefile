@@ -1,30 +1,33 @@
-# EPINOR PS5 Account Activator
-# Built against ps5-payload-dev/sdk.
+# EPINOR Combined PS5 NP Fake Signin
+# Account activation + idempotent offline fake sign-in.
 
-PS5_HOST ?= ps5
-PS5_PORT ?= 9021
-
-ifdef PS5_PAYLOAD_SDK
-include $(PS5_PAYLOAD_SDK)/toolchain/prospero.mk
-else
+ifndef PS5_PAYLOAD_SDK
 $(error PS5_PAYLOAD_SDK is undefined)
 endif
 
-ELF := EPINOR-Account-Activator.elf
+include $(PS5_PAYLOAD_SDK)/toolchain/prospero.mk
 
-CFLAGS := -std=gnu11 -O2 -Wall -Wextra -Werror -Iinclude
-SRCS := src/main.c src/account_activator.c src/notification.c
-LDADD := -lkernel_sys -lSceRegMgr -lSceUserService
+ELF := EPINOR-NP-Fake-Signin.elf
 
-.PHONY: all clean test
+CFLAGS := -std=gnu11 -DPS5 -O2 -Wall -Wextra -Werror \
+          -Wno-unused-parameter -I. -Iinclude -Iinclude/generated
+
+LDADD := -lSceUserService -lSceRegMgr -lSceSystemService -lkernel
+
+SRCS := np-fake-signin.c \
+        src/account_activator.c \
+        src/notification.c
+
+.PHONY: all clean
 
 all: $(ELF)
 
-$(ELF): $(SRCS) include/account_activator.h include/notification.h
+$(ELF): $(SRCS) include/auth_dat.h include/config_dat.h \
+        include/account_activator.h include/notification.h hmac_md5.h
 	$(CC) $(CFLAGS) -o $@ $(SRCS) $(LDADD)
+	$(PS5_PAYLOAD_SDK)/bin/prospero-strip --strip-all $@
 
 clean:
 	rm -f $(ELF) *.o src/*.o
-
-test: $(ELF)
-	$(PS5_DEPLOY) -h $(PS5_HOST) -p $(PS5_PORT) $^
+	rm -rf include/generated
+	rm -f include/auth_dat.h include/config_dat.h

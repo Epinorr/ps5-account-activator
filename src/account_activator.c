@@ -69,7 +69,8 @@ static uint64_t generate_account_id(const char *username)
     return base;
 }
 
-int account_activator_run(char username[USERNAME_MAX], int *changed, int *error_code)
+int account_activator_run(char username[USERNAME_MAX], int *changed, int *error_code,
+                           int *account_number_out, uint64_t *account_id_out)
 {
     int user_id = -1;
     int account_number;
@@ -81,13 +82,16 @@ int account_activator_run(char username[USERNAME_MAX], int *changed, int *error_
     int have_old_type = 0;
     int have_old_flags = 0;
 
-    if (username == NULL || changed == NULL || error_code == NULL) {
+    if (username == NULL || changed == NULL || error_code == NULL ||
+        account_number_out == NULL || account_id_out == NULL) {
         return ACCOUNT_ACTIVATOR_ERR_ARGUMENT;
     }
 
     username[0] = '\0';
     *changed = 0;
     *error_code = 0;
+    *account_number_out = -1;
+    *account_id_out = 0;
 
     ret = sceUserServiceGetForegroundUser(&user_id);
     if (ret != 0) {
@@ -125,6 +129,8 @@ int account_activator_run(char username[USERNAME_MAX], int *changed, int *error_
     }
 
     if (old_account_id != 0) {
+        *account_number_out = account_number;
+        *account_id_out = old_account_id;
         return ACCOUNT_ACTIVATOR_OK;
     }
 
@@ -178,5 +184,7 @@ int account_activator_run(char username[USERNAME_MAX], int *changed, int *error_
     }
 
     *changed = 1;
+    *account_number_out = account_number;
+    *account_id_out = account_id;
     return ACCOUNT_ACTIVATOR_OK;
 }
