@@ -1,0 +1,29 @@
+# Build outputs
+*.elf
+*.o
+*.a
+*.so
+*.bin
+build/
+out/
+dist/
+
+# gen_dat / upstream template data fetched by tools/prepare_upstream.sh
+template/upstream/
+gen_dat/*.dat
+gen_dat/output/
+
+# SDK path / environment
+.env
+*.sdk
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Logs
+*.log
