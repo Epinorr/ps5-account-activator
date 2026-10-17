@@ -20,7 +20,7 @@
 * **⚡ One-Shot Execution:** Automatically detects the active foreground user, checks registry states, and performs offline activation + fake sign-in without requiring multiple payloads.
 * **🛡️ Idempotent & Safe:** Smart state verification ensures registry values and NP `.dat` files are only written when necessary, preventing redundant writes or data corruption.
 * **🌍 Automatic Region Detection:** Dynamically adjusts account locale and country settings based on your PS5's system language.
-* **🔔 Clean System Notifications:** Displays clear, real-time status notifications directly on your PS5 screen (`Coded by EPINOR`).
+* **🔔 Clean System Notifications:** Displays clear, real-time status notifications directly on your PS5 screen.
 * **🪶 Optimized Binary:** Stripped of legacy PS4 memory-patching overhead, compiled with garbage-collected sections for a minimal footprint.
 
 ---
