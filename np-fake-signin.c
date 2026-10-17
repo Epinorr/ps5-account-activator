@@ -64,7 +64,7 @@ extern int32_t sceRegMgrGetBin(uint32_t key, void *value, size_t size);
 
 /* Runtime buffers */
 static unsigned char cfg[8192];
-static unsigned char acct[224];
+static unsigned char acct_buf[224];
 
 /* HMAC-MD5 key for dat files */
 static const uint8_t dat_hmac_key[16] = {
@@ -97,23 +97,23 @@ static void build_config(const char *username, const uint8_t *account_id) {
 
 static void build_account(const char *online_id, const uint8_t *account_id,
                           const char *country, const char *lang, const char *locale) {
-    memset(acct, 0, sizeof(acct));
+    memset(acct_buf, 0, sizeof(acct_buf));
     uint32_t ver = 1;
-    memcpy(acct + 0x00, &ver, 4);
-    memcpy(acct + 0x08, account_id, 8);
-    memset(acct + 0x10, '0', 64);
-    acct[0x50] = 0x00;
-    patch_str(acct, 0x51, online_id, 15);
-    patch_str(acct, 0x65, "np", 8);
-    acct[0x6A] = 0x01;
-    patch_str(acct, 0x75, country, 2);
-    patch_str(acct, 0x80, lang, 2);
-    patch_str(acct, 0x88, locale, 8);
-    memcpy(acct + 0xB8, &ver, 4);
+    memcpy(acct_buf + 0x00, &ver, 4);
+    memcpy(acct_buf + 0x08, account_id, 8);
+    memset(acct_buf + 0x10, '0', 64);
+    acct_buf[0x50] = 0x00;
+    patch_str(acct_buf, 0x51, online_id, 15);
+    patch_str(acct_buf, 0x65, "np", 8);
+    acct_buf[0x6A] = 0x01;
+    patch_str(acct_buf, 0x75, country, 2);
+    patch_str(acct_buf, 0x80, lang, 2);
+    patch_str(acct_buf, 0x88, locale, 8);
+    memcpy(acct_buf + 0xB8, &ver, 4);
 
     char hex_hash[33] = {0};
-    hmac_md5_hex(dat_hmac_key, sizeof(dat_hmac_key), acct, 0xB8, hex_hash);
-    memcpy(acct + 0xC0, hex_hash, 32);
+    hmac_md5_hex(dat_hmac_key, sizeof(dat_hmac_key), acct_buf, 0xB8, hex_hash);
+    memcpy(acct_buf + 0xC0, hex_hash, 32);
 }
 
 static int write_file(const char *path, const unsigned char *data, size_t len) {
@@ -137,7 +137,7 @@ static void write_np_files(uint32_t userId) {
     mkdir(dir, 0755);
 
     write_np_file(userId, "/system_data/priv/home/%x/config.dat", cfg, sizeof(cfg));
-    write_np_file(userId, "/system_data/priv/home/%x/np/account.dat", acct, sizeof(acct));
+    write_np_file(userId, "/system_data/priv/home/%x/np/account.dat", acct_buf, sizeof(acct_buf));
     write_np_file(userId, "/system_data/priv/home/%x/np/auth.dat", auth_dat, sizeof(auth_dat));
 }
 
