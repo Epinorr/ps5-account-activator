@@ -1,5 +1,5 @@
 # Build output (from Makefile `clean` target)
-EPINOR-NP-Fake-Signin.elf
+AIO-Activator.elf
 *.o
 src/*.o
 .build/

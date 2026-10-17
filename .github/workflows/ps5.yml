@@ -18,7 +18,17 @@ jobs:
       - name: Checkout payload
         uses: actions/checkout@v4
 
+      - name: Cache PS5 Payload SDK & Vendor
+        id: cache-sdk
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.temp }}/ps5-payload-sdk
+            .vendor
+          key: ${{ runner.os }}-ps5-sdk-v0.42-vendor-v1.1
+
       - name: Checkout PS5 Payload SDK v0.42
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
         uses: actions/checkout@v4
         with:
           repository: ps5-payload-dev/sdk
@@ -36,46 +46,44 @@ jobs:
             xxd
 
       - name: Install PS5 Payload SDK
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
         working-directory: sdk
         run: |
           set -euxo pipefail
-
           make DESTDIR="${{ runner.temp }}/ps5-payload-sdk" clean install
 
-          test -f "${{ runner.temp }}/ps5-payload-sdk/toolchain/prospero.mk"
-          test -x "${{ runner.temp }}/ps5-payload-sdk/bin/prospero-clang"
-          test -x "${{ runner.temp }}/ps5-payload-sdk/bin/prospero-strip"
+      - name: Validate Project Structure
+        run: |
+          set -euxo pipefail
+          python3 tools/validate_project.py
 
       - name: Build payload
         env:
           PS5_PAYLOAD_SDK: ${{ runner.temp }}/ps5-payload-sdk
         run: |
           set -euxo pipefail
-
           make clean
           make all
 
       - name: Verify ELF
         run: |
           set -euxo pipefail
-
-          test -s EPINOR-NP-Fake-Signin.elf
-          file EPINOR-NP-Fake-Signin.elf
-          readelf -h EPINOR-NP-Fake-Signin.elf
+          test -s AIO-Activator.elf
+          file AIO-Activator.elf
+          readelf -h AIO-Activator.elf
 
       - name: Generate checksum
         run: |
           set -euxo pipefail
-
-          sha256sum EPINOR-NP-Fake-Signin.elf > SHA256SUMS.txt
+          sha256sum AIO-Activator.elf > SHA256SUMS.txt
 
       - name: Upload payload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EPINOR-NP-Fake-Signin
+          name: AIO-Activator
           if-no-files-found: error
           path: |
-            EPINOR-NP-Fake-Signin.elf
+            AIO-Activator.elf
             SHA256SUMS.txt
 
   release:
@@ -90,14 +98,13 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: EPINOR-NP-Fake-Signin
+          name: AIO-Activator
           path: dist
 
       - name: Verify release files
         run: |
           set -euxo pipefail
-
-          test -s dist/EPINOR-NP-Fake-Signin.elf
+          test -s dist/AIO-Activator.elf
           test -s dist/SHA256SUMS.txt
 
       - name: Create release
@@ -107,5 +114,5 @@ jobs:
           generate_release_notes: true
           prerelease: false
           files: |
-            dist/EPINOR-NP-Fake-Signin.elf
+            dist/AIO-Activator.elf
             dist/SHA256SUMS.txt
