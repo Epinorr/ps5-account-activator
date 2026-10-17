@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎮 EPINOR PS5 Account Activator & NP Fake Signin
+# 🎮 PS5 Account Activator & NP Fake Signin
 
 **A lightweight, all-in-one PS5 ELF payload that seamlessly combines offline account activation with PlayStation Network (NP) Fake Signin in a single execution.**
 
