@@ -1,6 +1,5 @@
 <div align="center">
-
-# 🎮 PS5 Account Activator & NP Fake Signin
+<img src="assets/banner.png" alt="PS5 Activator Payload" width="100%">
 
 **A lightweight, all-in-one PS5 ELF payload that seamlessly combines offline account activation with PlayStation Network (NP) Fake Signin in a single execution.**
 
